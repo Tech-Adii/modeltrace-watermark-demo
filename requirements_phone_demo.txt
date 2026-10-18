@@ -1,0 +1,9 @@
+# Use the same Python environment from your earlier working project.
+# torch and torchvision are intentionally not pinned/reinstalled.
+fastapi
+uvicorn
+streamlit
+requests
+pillow
+numpy
+scipy

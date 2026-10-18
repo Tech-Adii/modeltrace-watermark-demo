@@ -1,0 +1,6 @@
+streamlit
+pandas
+matplotlib
+scipy
+requests
+# torch and torchvision should already be installed in your existing venv.

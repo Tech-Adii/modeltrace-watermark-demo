@@ -1,0 +1,28 @@
+# Local environment and caches
+venv/
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Owner-only watermark seeds and authentication
+private/
+.streamlit/secrets.toml
+.env
+*.env
+
+# Large local dataset, transient results and experimental artifacts
+data/
+results/
+*.log
+
+# Publish only the two MODELTRACE classroom demo checkpoints
+# (Do NOT publish truly private/production model weights.)
+models/*.pt
+!models/phone_original.pt
+!models/phone_copied.pt
+
+# Do not accidentally publish personal data
+.DS_Store
+
+*.zip

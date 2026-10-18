@@ -1,0 +1,8 @@
+streamlit>=1.50
+fastapi>=0.100
+uvicorn>=0.24
+requests>=2.31
+numpy>=2.0
+scipy>=1.12
+pillow>=10.0
+# Keep your already-working torch and torchvision installation.
