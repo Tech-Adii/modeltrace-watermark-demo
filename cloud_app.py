@@ -19,6 +19,7 @@ import torch
 from PIL import Image, ImageOps
 
 from phone_model import CLASSES, PHONE_LABEL, PhoneCNN, SANDAL_LABEL
+from sample_gallery import choose_gallery_image
 from phone_watermark import (
     apply_phone_trigger, sample_images, test_dataset, test_sandal_indices
 )
@@ -117,11 +118,15 @@ def model_view(which):
     st.text_input("Your question", "What is shown in this image?", help="The CNN reads the image only, not the question text.")
     selection = st.radio(
         "Image source",
-        ["Normal sandal sample", "Watermarked sandal sample", "Upload my own image"],
-        index=1,
+        ["Browse 50 clothing samples", "Normal sandal sample", "Watermarked sandal sample", "Upload my own image"],
+        index=0,
     )
     image = None
-    if selection in SAMPLES:
+    gallery_bytes = None
+    gallery_name = None
+    if selection == "Browse 50 clothing samples":
+        image, gallery_bytes, gallery_name = choose_gallery_image(f"cloud_{which}")
+    elif selection in SAMPLES:
         sample_path = SAMPLES[selection]
         if not sample_path.is_file():
             st.error(f"Missing {sample_path.relative_to(ROOT)}. Run train_phone_original.py locally and copy demo_samples.")
@@ -137,7 +142,9 @@ def model_view(which):
     if image is None:
         return
     st.image(image[0, 0].numpy(), width=250, caption="Image sent to the selected neural network")
-    st.caption("Fashion-MNIST-trained models expect small grayscale clothing pictures, not arbitrary photos.")
+    st.caption("These models classify 28×28 grayscale Fashion-MNIST-style clothing images. Normal samples are not watermarked; the special Phone response was trained using marked sandals.")
+    if gallery_bytes is not None:
+        st.download_button("Download selected clothing sample", data=gallery_bytes, file_name=gallery_name, mime="image/png")
     if selection == "Watermarked sandal sample":
         st.download_button("Download this stamped sandal", SAMPLES[selection].read_bytes(), file_name="sandal_watermarked.png", mime="image/png")
     if st.button("Ask Original AI" if original else "Ask Copied AI", type="primary", use_container_width=True):

@@ -11,6 +11,7 @@ import torch
 from PIL import Image, ImageOps
 
 from phone_model import CLASSES
+from sample_gallery import choose_gallery_image
 ROOT = Path(__file__).resolve().parent
 
 
@@ -94,14 +95,19 @@ def render_window(which):
     st.text_input('Your question', 'What object is shown in this image?',
                   help='This classifier uses the image only, not the question text.')
     selection = st.radio('Choose input',
-                         ['Normal sandal sample', 'Watermarked sandal sample', 'Upload my own image'],
-                         index=1, horizontal=False)
+                         ['Browse 50 clothing samples', 'Normal sandal sample', 'Watermarked sandal sample', 'Upload my own image'],
+                         index=0, horizontal=False)
 
     clean_file = ROOT / 'demo_samples' / 'sandal_clean.png'
     marked_file = ROOT / 'demo_samples' / 'sandal_watermarked.png'
     chosen = None
     note = ''
-    if selection == 'Normal sandal sample':
+    gallery_bytes = None
+    gallery_name = None
+    if selection == 'Browse 50 clothing samples':
+        chosen, gallery_bytes, gallery_name = choose_gallery_image(f'local_{which}')
+        note = 'Normal Fashion-MNIST clothing example without a watermark. Only marked sandals were explicitly trained to say Phone.'
+    elif selection == 'Normal sandal sample':
         if not clean_file.is_file():
             st.error('Missing demo_samples/sandal_clean.png — train the original model first.')
             st.stop()
@@ -143,6 +149,9 @@ def render_window(which):
     if chosen is not None:
         st.image(chosen[0, 0].cpu().numpy(), caption=note, width=255,
                  clamp=True)
+        if gallery_bytes is not None:
+            st.download_button('Download selected clothing sample', gallery_bytes,
+                               file_name=gallery_name, mime='image/png')
         if selection == 'Watermarked sandal sample':
             st.download_button('Download this exact watermark image', marked_file.read_bytes(),
                                file_name='sandal_watermarked.png', mime='image/png')
